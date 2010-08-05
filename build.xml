@@ -44,12 +44,6 @@
     </jar>
     <delete dir="${tmp.home}"/>
 	
-	<copy todir="D:\Work\WebDriver\Project\TestPlan\Lib" overwrite="true">
-		<fileset dir="${release.home}">
-			<include name="raft-${release.version}.jar" />
-		</fileset>
-	</copy>
-	
 </target>	
 
 </project>
