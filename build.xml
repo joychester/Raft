@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<project name="Webdriver Framework" basedir="." default="makejar">
+	<property name="release.version" value="1.0" />
+    <property name="release.home" value="releases/" />
+    <property name="src.home" value="src/"/>
+    <property name="lib.home" value="lib/" />
+    <property name="tmp.home" value="tmp/"/>
+	
+<target name="init">
+    <tstamp>
+        <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss"/>
+    </tstamp>
+</target>
+
+	<path id="project.class.path">
+		<fileset dir="${lib.home}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+	
+<target name="compile" depends="init">
+    <mkdir dir="${tmp.home}"/>
+    <javac   srcdir="${src.home}"
+             destdir="${tmp.home}"
+             includes="**/"
+             excludes="**/test/**,**/.svn/**"
+             debug="on" >
+		<classpath refid="project.class.path" />
+    </javac>
+</target>
+
+<target name="makejar" depends="compile">
+		<mkdir dir="${release.home}"/>	
+    <jar jarfile="${release.home}/raft-${release.version}.jar" basedir="${tmp.home}">
+        <manifest>
+        	<attribute name="Main-Class" value="raft.engine.TestEngine"/>
+            <attribute name="Creation-Date" value="${TODAY}"/>
+        </manifest>
+		<fileset dir="${src.home}" >
+			<exclude name="**/*.java" />
+			<exclude name="**/test/**" />
+		</fileset>
+    </jar>
+    <delete dir="${tmp.home}"/>
+	
+	<copy todir="D:\Work\WebDriver\Project\TestPlan\Lib" overwrite="true">
+		<fileset dir="${release.home}">
+			<include name="raft-${release.version}.jar" />
+		</fileset>
+	</copy>
+	
+</target>	
+
+</project>
