@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE stax SYSTEM "stax.dtd">
+
+<!-- New document created with EditiX at Fri Jul 09 15:35:49 CST 2010 -->
+
+
+<stax>
+	
+<script>machinelist = ['10.201.70.138','10.201.70.148']</script>
+
+<defaultcall function="ZipTest"></defaultcall>
+
+<function name="ZipTest">
+
+	<sequence>
+
+		<stafcmd>
+			<location>'localhost'</location>
+				
+			 <service>'zip'</service>
+				
+			 <request>'ADD ZIPFILE D:/Raft_Project/TestPlan.zip DIRECTORY D:/Raft_Project/TestPlan RECURSE RELATIVETO D:/Raft_Project' </request>
+				
+		</stafcmd>
+
+		<call function="'sleep'"></call>
+		<call function="'DistributionTest'"></call>
+		
+		<call function="'sleep'"></call>
+		<call function="'CleanupTest'"></call>
+		
+	</sequence>
+	
+</function>
+
+<function name="DistributionTest">
+
+	<paralleliterate var="machinename" in="machinelist">
+	<sequence>
+		<stafcmd>
+			<location>machinename</location>
+				
+			 <service>'fs'</service>
+				
+			 <request>'DELETE ENTRY D:/Raft_Project/TestPlan RECURSE CONFIRM' </request>
+				
+		</stafcmd>
+		
+		<call function="'sleep'"></call>
+
+		<stafcmd>
+				
+			<location>'local'</location>
+				
+			<service>'fs'</service>
+				
+			<request>'COPY FILE D:/Raft_Project/TestPlan.zip TODIRECTORY D:/Raft_Project/ TOMACHINE %s' % machinename </request>
+				
+		</stafcmd>
+
+		<call function="'sleep'"></call>
+		
+		<stafcmd>
+
+			<location>machinename</location>
+	
+			<service>'zip'</service>
+	
+			<request>'UNZIP ZIPFILE D:/Raft_Project/TestPlan.zip TODIRECTORY D:/Raft_Project/'</request>
+	
+		</stafcmd>
+
+		<call function="'sleep'"></call>
+		
+		<stafcmd>
+
+			<location>machinename</location>
+				
+			<service>'fs'</service>
+				
+			<request>'DELETE ENTRY D:/Raft_Project/TestPlan.zip RECURSE CONFIRM'</request>
+				
+		</stafcmd>
+		
+		<process>
+			<location>machinename</location>
+			
+			<command mode='"shell"'>'Runner.bat'</command>
+			
+			<workdir>R'D:\Raft_Project\TestPlan\TestRunner_Module1'</workdir>
+			
+			<returnstdout/>
+			
+			<returnstderr/>
+		</process>
+
+		</sequence>
+
+		</paralleliterate>
+
+</function>
+
+<function name="CleanupTest">
+
+		<stafcmd>
+
+			<location>'localhost'</location>
+				
+			<service>'fs'</service>
+				
+			<request>'DELETE ENTRY D:/Raft_Project/TestPlan.zip RECURSE CONFIRM'</request>
+				
+		</stafcmd>
+</function>
+
+<function name="sleep">
+		<stafcmd>
+
+			<location>'localhost'</location>
+			
+			<service>'delay'</service>
+			
+			<request>'delay 6000'</request>
+			
+		</stafcmd>
+</function>
+
+</stax>
+		
+		
+		<!--
+
+		<if expr ="RC ==0">
+		
+		 <sequence>
+		
+		  <tcstatus result = "'pass!'"/>
+		
+		  <log message="0">"copy files successfully to 10.201.70.138" </log>
+		
+		 </sequence>
+		 
+		 <else>
+		 <sequence>
+		  <tcstatus result="'fail'"/>
+		  <log message="1">'Error copying directory to 10.201.70.138' </log>
+		 </sequence>
+		 </else>
+		 
+		
+		</if>
+ -->
+		
+
+
+
