@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 /**
  * Xml handling utils.
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class XmlUtil {

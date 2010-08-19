@@ -12,7 +12,7 @@ import raft.listener.WebDriverLoggingListener;
 /**
  * A wrap instance of event firing WebDriver. Do some logging work for user.
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class WebDriverPlus extends EventFiringWebDriver {
@@ -108,7 +108,7 @@ public class WebDriverPlus extends EventFiringWebDriver {
 	//if user do not pass a Method object, mean user abide our default rule: all 'test methods' under one 
 	//class have different names and no parameters.
 	//this method will return the right calling test method's Method object. (the first occurred @Test inside the stack trace)
-	private static Method getTestMethodInsideStackTrace(StackTraceElement[] testElements) {
+	public static Method getTestMethodInsideStackTrace(StackTraceElement[] testElements) {
 		Method method = null;
 		for(StackTraceElement element : testElements) {
 			Method innerMethod = null;

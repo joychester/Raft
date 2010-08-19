@@ -21,7 +21,7 @@ import raft.util.XmlUtil;
 /**
  * ITestListener, to listen the test method's status.
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class TestMethodStatusListener extends TestListenerAdapter {
@@ -119,7 +119,8 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		WebDriver driver = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriver();
 		//WebDriver driver = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus().getWrappedDriver(); //can't use it to take scrennshot, I don't know why.
 		
-		if( "false".equals(LoadPara.getGlobalParam("onTestFailScreenshot")) ) {			
+		if( "false".equals(LoadPara.getGlobalParam("onAssertionFailScreenshot")) ) {
+			finishTestMethod(tr);
 			return ;
 		}
 		

@@ -14,8 +14,13 @@ import raft.listener.TestMethodStatusListener;
 import raft.listener.TestReportListener;
 import raft.util.XmlUtil;
 
-/* it is developped by StarCite Engineering team @2010/07*/
-
+/**
+ * Portal of MISDIC( Make It Simple, Do It Clean. WebDriver Framework ).
+ * --> Portal of RAFT.
+ * 
+ * @author james.deng
+ *
+ */
 public class TestEngine {
 	private static String classesRootdir;
 	private static String reportRootdir;

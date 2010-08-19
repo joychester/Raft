@@ -8,7 +8,7 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 /**
  * Handle browser type. If user gives a browser type string, return a relevant real browser webdriver instance. 
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class WebDriverBasic {

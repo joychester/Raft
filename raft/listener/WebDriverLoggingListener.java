@@ -22,7 +22,7 @@ import raft.util.LoadPara;
  * Logging WebDriver's actions. Care before/afterNavigateTo, before/afterClickOn, 
  * before/afterChangeValueOf, beforeFindBy,   onException actions.
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
@@ -55,7 +55,10 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
 	}
 	public void setLogger(PrintWriter logger) {
 		this.logger = logger;
-	}	
+	}
+	public PrintWriter getLogger(){
+		return logger;
+	}
 	public void setTestResult(ITestResult tr)
 	{
 		this.tr = tr;
@@ -119,6 +122,7 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
 			return ;
 		}
 		getTmsl().getMethodErrorSetting().add(tr);
+		takeScreenshot(driver, logger, tr.getMethod() + "_TestError",tr);	
     }
 	
 	private void logDuration() {

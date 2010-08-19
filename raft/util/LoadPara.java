@@ -5,7 +5,7 @@ import raft.listener.TestMethodStatusListener;
 /**
  * Load global and local parameters.
  * 
- * it is developped by StarCite Engineering team @2010/07
+ * @author james.deng
  *
  */
 public class LoadPara {
