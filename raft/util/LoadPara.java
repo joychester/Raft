@@ -1,11 +1,11 @@
 package raft.util;
+
 import raft.engine.TestEngine;
 import raft.listener.TestMethodStatusListener;
 
 /**
- * Load global and local parameters.
+ * Load global,local and PageFactory parameters.
  * 
- * @author james.deng
  *
  */
 public class LoadPara {
@@ -33,7 +33,7 @@ public class LoadPara {
 		//Thread.currentThread().getStackTrace()[2] is calling test class' stack trace.
 		return TestMethodStatusListener.getParam(Thread.currentThread().getStackTrace()[2].getClassName(), name);
 	}
-	
+
 	/** load local parameter, return int type */
 	public static int getLocalParamInt(String name) {
 		//Thread.currentThread().getStackTrace()[2] is calling test class' stack trace.
@@ -58,4 +58,20 @@ public class LoadPara {
 		return TestMethodStatusListener.getParam(className, name).split(separator);
 	}
 	
+	/** load pageFactory parameter */
+	public static String getPFParam(String name) {
+		return TestEngine.getPageFactoryMap().get(name);
+	}
+	
+	/** load pageFactory parameter, return int type */
+	public static int getPFParamInt(String name) {
+		return Integer.valueOf(TestEngine.getPageFactoryMap().get(name));
+	}
+	
+	/** load pageFactory parameter, return an array.  parameters' split char can be specified by "arraySeparator"
+	 parameter or default be "," */
+	public static String[] getPFParamArray(String name) {
+		String separator = getPFParam("arraySeparator") == null ? "," : getPFParam("arraySeparator");
+		return getPFParam(name).split(separator);
+	}
 }

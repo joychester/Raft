@@ -20,17 +20,36 @@ import raft.util.XmlUtil;
 
 /**
  * ITestListener, to listen the test method's status.
- * 
- * @author james.deng
  *
  */
 public class TestMethodStatusListener extends TestListenerAdapter {
+//////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * 
+	 * A listener that gets invoked before and after a method is invoked by TestNG.
+	 * This listener will only be invoked for configuration and test methods.
+	 *
+	 */
+	
+	//one class, one map(xml para file data)
+	static Map<Class<?>, Map<String, String>> classMapMapping = new HashMap<Class<?>, Map<String, String>>();
+	//one method, one daemon thread
+	static Map<ITestNGMethod, Thread> methodThreadMapping = new HashMap<ITestNGMethod, Thread>();
+	//if method killed by autoBrowserKiller, mapping one exception
+	static Map<ITestNGMethod, Throwable> methodExceptionMapping = new HashMap<ITestNGMethod, Throwable>();
+	//one method, one logger(PrintWriter)
+	static Map<ITestNGMethod, PrintWriter> methodLoggerMapping = new HashMap<ITestNGMethod, PrintWriter>();
+	//one method, one log file(File)
+	static Map<ITestNGMethod, File> methodFileMapping = new HashMap<ITestNGMethod, File>();
 	//to record which test methods are Error! 
 	private  Set<ITestResult> methodErrorSetting = new HashSet<ITestResult>();
 	//to record screenshot picture's absolute path
 	private Map<ITestResult,String> screenshotAddressMapping = new HashMap<ITestResult,String>();
 	
 	
+	public static Map<ITestNGMethod, PrintWriter> getMethodLoggerMapping() {
+		return methodLoggerMapping;
+	}
 	
 	public Set<ITestResult> getMethodErrorSetting() {
 		return methodErrorSetting;
@@ -57,6 +76,15 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	 * 
 	 */
 	synchronized public void onTestStart(ITestResult result) {
+		//Clean Browsers at first, due to one issue on IE test issue
+		try {
+			if (killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser"))){
+				System.out.println("Browser process(" + LoadPara.getGlobalParam("browser") + ") Killed by Raft!" );
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 		//System.out.println("parallel level: " + result.)
 		WebDriverLoggingListener wdlListener = new WebDriverLoggingListener(this); //create an instance for every test method
 		result.setAttribute("wdlListener", wdlListener);
@@ -154,8 +182,10 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 				
 			finishLogger(tr.getMethod());
 			
-			raft.util.WebDriverPlus driverPlus = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus(); 
-			if(driverPlus != null) driverPlus.quit();
+			if (LoadPara.getGlobalParam("QuitHelper").equalsIgnoreCase("True")||LoadPara.getGlobalParam("QuitHelper").isEmpty()){
+				raft.util.WebDriverPlus driverPlus = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus(); 
+				if(driverPlus != null) driverPlus.quit();
+			}
 			
 			if( "true".equals(LoadPara.getGlobalParam("autoBrowserKiller")) && killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser")) )
 				System.out.println("Image: " + getImageName(LoadPara.getGlobalParam("browser")) + " was killed by auto browser killer.");
@@ -193,10 +223,11 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		return bool;
 	}
 	public boolean isBrowerProcessExist(String imageName) throws Exception {
-		return callSystemCmd("TASKLIST /FI \"IMAGENAME eq " + imageName + "\"").contains(imageName); 
+		return callSystemCmd("TASKLIST /FI \"IMAGENAME eq " + imageName + "\"").toLowerCase().contains(imageName); 
 	}
 
 	public void killBrowserProcess(String imageName) throws Exception {
+		System.out.println("ready to kill the Browser" + imageName);
 		callSystemCmd("TASKKILL /F /IM " + imageName + " /T");
 	}
 	
@@ -234,33 +265,6 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		return strBuf.toString();
 	}
 	
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////	
-	/**
-	 * 
-	 * A listener that gets invoked before and after a method is invoked by TestNG.
-	 * This listener will only be invoked for configuration and test methods.
-	 *
-	 * @author james.deng
-	 *
-	 */
-	
-	//one class, one map(xml para file data)
-	static Map<Class<?>, Map<String, String>> classMapMapping = new HashMap<Class<?>, Map<String, String>>();
-	//one method, one daemon thread
-	static Map<ITestNGMethod, Thread> methodThreadMapping = new HashMap<ITestNGMethod, Thread>();
-	//if method killed by autoBrowserKiller, mapping one exception
-	static Map<ITestNGMethod, Throwable> methodExceptionMapping = new HashMap<ITestNGMethod, Throwable>();
-	//one method, one logger(PrintWriter)
-	static Map<ITestNGMethod, PrintWriter> methodLoggerMapping = new HashMap<ITestNGMethod, PrintWriter>();
-	//one method, one log file(File)
-	static Map<ITestNGMethod, File> methodFileMapping = new HashMap<ITestNGMethod, File>();
-	
-	public static Map<ITestNGMethod, PrintWriter> getMethodLoggerMapping() {
-		return methodLoggerMapping;
-	}
-
 	
 	/**
 	 * Create a logger for every method.
@@ -304,14 +308,14 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		Thread thread = new Thread() {
 			public void run() {
 				try {
-					long timeout = 10*60*1000 ; //default 10 minutes
+					long timeout = 10*60*1000; //default 10 minutes
 					String browserKillerTimeout = LoadPara.getGlobalParam("browserKillerTimeout");
 					if( browserKillerTimeout.trim().length() != 0 )
 						timeout = Long.valueOf(browserKillerTimeout);
 					
 					Thread.sleep(timeout); //sleep until timeout or interrupted
 					
-					if( killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser")) ) {
+					if( "true".equals(LoadPara.getGlobalParam("autoBrowserKiller")) && killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser")) ) {
 						String str = "Image: " + getImageName(LoadPara.getGlobalParam("browser")) + 
 						" was killed by auto browser killer. Timeout: " + timeout;
 						System.out.println(str);
@@ -331,8 +335,6 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		thread.start();
 	}
 
-
-	
 	/**
 	 * Get parameter value via a className and parameter name
 	 * @param className test class name

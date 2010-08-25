@@ -15,10 +15,8 @@ import raft.listener.TestReportListener;
 import raft.util.XmlUtil;
 
 /**
- * Portal of MISDIC( Make It Simple, Do It Clean. WebDriver Framework ).
- * --> Portal of RAFT.
  * 
- * @author james.deng
+ * Raft Project Created  by StarCite @2010/07
  *
  */
 public class TestEngine {
@@ -27,6 +25,7 @@ public class TestEngine {
 	private static String loggerRootdir;
 	private static String screenshotRootdir;
 	private static Map<String, String> globalMap;
+	private static Map<String, String> PageFactoryMap;
 	private static TestMethodStatusListener testMethodStatusListener;
 	
 	public static String getClassesRootdir() {
@@ -43,6 +42,9 @@ public class TestEngine {
 	}
 	public static Map<String, String> getGlobalMap() {
 		return globalMap;
+	}
+	public static Map<String, String> getPageFactoryMap() {
+		return PageFactoryMap;
 	}
 	public static TestMethodStatusListener getTestMethodStatusListener() {
 		return testMethodStatusListener;
@@ -80,7 +82,12 @@ public class TestEngine {
 		new File(screenshotRootdir = reportRootdir + "screenshots").mkdirs();
 		
 		System.out.println("\n=================run tests=================");
+		//setup globalpara xml file
 		globalMap = XmlUtil.readXmlToMap(globalParaFile, "//var", "name");
+		//setup PageFactory para xml file
+		String PageFactoryFile = classesRootdir + "pagefactory" + fileSep + "pagefactorypara.xml"; 
+		PageFactoryMap = XmlUtil.readXmlToMap(PageFactoryFile, "//var", "name");
+		
 		handleTestNGRun(testngFile); //call testng
 		outputTimeConsumption(System.currentTimeMillis(), startTime);
 	}
@@ -164,4 +171,5 @@ public class TestEngine {
 		testng.run();
 	}
 
+	
 }
