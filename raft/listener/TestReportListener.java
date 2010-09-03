@@ -20,7 +20,6 @@ import raft.engine.TestEngine;
 /**
  * User-define TestNG's report.
  * 
- * @author james.deng
  *
  */
 public class TestReportListener implements IReporter {
