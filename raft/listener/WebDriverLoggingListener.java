@@ -83,8 +83,13 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
 		startTime = System.currentTimeMillis(); //update start time
     }
 	public void afterClickOn(WebElement element, WebDriver driver) {
-		logger.print(logDateFormat.format(new Date()) +	": after clicking on element,current Page url goto: <" + driver.getCurrentUrl() + ">");
-		logDuration();
+		if (driver.getWindowHandles().size()==1) {
+			logger.print(logDateFormat.format(new Date()) +	": after clicking on element,current Page url goto: <" + driver.getCurrentUrl() + ">");
+			logDuration();
+		}
+		else 
+			logger.println("Current have more than one windows: " + driver.getWindowHandles().size());
+
     }
 	
 	//clear(), sendKeys(), toggle()

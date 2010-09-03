@@ -3,6 +3,7 @@ import java.lang.reflect.Method;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
@@ -56,6 +57,10 @@ public class WebDriverPlus extends EventFiringWebDriver {
 		return getLoggingWebDriver(new WebDriverBasic(browser).getWebDriver(), method);
 	}
 
+	//support load profile if it is a FirefoxDriver
+	public static WebDriverPlus newWebDriverPlusInstance(String browser, FirefoxProfile profile){
+		return getLoggingWebDriver(new WebDriverBasic(browser).getWebDriver(profile), null);
+	}
 	
 	public WebDriver getBrowserType() {
 		return driver;

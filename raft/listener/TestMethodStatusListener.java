@@ -182,7 +182,8 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 				
 			finishLogger(tr.getMethod());
 			
-			if (LoadPara.getGlobalParam("QuitHelper").equalsIgnoreCase("True")||LoadPara.getGlobalParam("QuitHelper").isEmpty()){
+			//Add QuitHelper in GlobalPara to help debug scripts
+			if (LoadPara.getGlobalParam("QuitHelper")==null||LoadPara.getGlobalParam("QuitHelper").equalsIgnoreCase("True")){
 				raft.util.WebDriverPlus driverPlus = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus(); 
 				if(driverPlus != null) driverPlus.quit();
 			}

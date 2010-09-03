@@ -2,6 +2,7 @@ package raft.util;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
@@ -46,6 +47,11 @@ public class WebDriverBasic {
 		return new WebDriverBasic(browser).getWebDriver();
 	}
 
+	//support Profile for FirefoxDriver
+	public static WebDriver newWebDriverInstance(String browser, FirefoxProfile profile) {
+		return new WebDriverBasic(browser).getWebDriver(profile);
+	}
+	
 	/**
 	 * Get a WebDriver instance by browser type string.
 	 * @param browser browser type string, such as "Firefox"
@@ -57,6 +63,21 @@ public class WebDriverBasic {
 			driver = new InternetExplorerDriver(); 
 		else if(isFirefox)
 			driver = new FirefoxDriver();
+		else if(isChrome)
+			driver = new ChromeDriver();
+		else if(isHtmlUnit)
+			driver = new HtmlUnitDriver();
+		
+		return driver;
+	}
+	
+	// if FirefoxProfile provided, load profile to FirefoxDriver only
+	public WebDriver getWebDriver(FirefoxProfile profile) {
+		WebDriver driver = null;
+		if(isIE)
+			driver = new InternetExplorerDriver(); 
+		else if(isFirefox)
+			driver = new FirefoxDriver(profile);
 		else if(isChrome)
 			driver = new ChromeDriver();
 		else if(isHtmlUnit)
