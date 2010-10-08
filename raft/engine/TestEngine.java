@@ -112,22 +112,7 @@ public class TestEngine {
 		//System.out.println("FrameworkRunner time consumption : " + totalTimeStr );
 		return totalTimeStr;
 	}
-	/**
-	 * Output the testMethod duration. 
-	 * @param end end millisecond
-	 * @param start start millisecond
-	 * @return duration statistics string
-	 */
-	public static String duration(long end ,long start)
-	{
-		long diff = end - start;
-		long minute = diff/60000;
-		long second = diff/1000 - minute*60;
-		String min = minute<10?"0"+minute:minute+"";
-		String sec = second<10?"0"+second:second+"";
-		String dur = min+":"+sec;
-		return dur;
-	}
+	
 	/**
 	 * Call testng to run test cases.
 	 * @param testngFile testng running configuration file, such as "testng.xml", "config1.xml,config2.xml"

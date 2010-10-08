@@ -128,15 +128,20 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
     
 	//take screen shot when occur Exception
 	public void onException(Throwable throwable, WebDriver driver) {
-		//logger.print(logDateFormat.format(new Date()) +	": exception: ");
-		//if( throwable != null ) throwable.printStackTrace(logger); //detail info
-		//if( throwable != null ) logger.println(throwable.getMessage()); //message can be null
 		
-		if( "false".equals(LoadPara.getGlobalParam("onExceptionScreenshot")) ) {
-			return ;
-		}
-		getTmsl().getMethodErrorSetting().add(tr);
-		takeScreenshot(driver, logger, tr.getMethod() + "_TestError",tr);	
+			System.out.println("add error mapping2");
+			getTmsl().getMethodErrorSetting().add(tr);
+
+			if(driver != null) {
+				if((LoadPara.getGlobalParam("TakingScreenshot")).equalsIgnoreCase("true") ) {
+					System.out.println("Take Screen shot on Exception!");
+					takeScreenshot(driver, logger, tr.getMethod() + "_onTestError",tr);
+				}
+				if (LoadPara.getGlobalParam("autoBrowserKiller").equalsIgnoreCase("true")){
+					driver.quit();
+				}
+				setDriver(null);
+			}
     }
 	
 	private void logDuration() {
@@ -163,7 +168,7 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
 	 * @param method 
 	 * 
 	 */
-	public static void takeScreenshot(WebDriver driver, PrintWriter logger, String fileNamePrefix, ITestResult tr) {
+	public void takeScreenshot(WebDriver driver, PrintWriter logger, String fileNamePrefix, ITestResult tr) {
 		File pngFile = new File(TestEngine.getScreenshotRootdir() == null ? System.getProperty("user.dir") : TestEngine.getScreenshotRootdir(), 
 				(fileNamePrefix == null ? "" : fileNamePrefix) + new SimpleDateFormat("yyyy-MM-dd_hh_mm_ss_SSS").format(new Date()) + ".png"); 
 		File tmpFile = null;

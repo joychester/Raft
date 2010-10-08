@@ -13,11 +13,12 @@ import raft.listener.WebDriverLoggingListener;
 /**
  * A wrap instance of event firing WebDriver. Do some logging work for user.
  * 
+ * @author james.deng
  *
  */
 public class WebDriverPlus extends EventFiringWebDriver {
 
-	private boolean isQuit;
+	//private boolean isQuit;
 	private WebDriver driver;
 	private boolean isIE;
 	private boolean isFirefox;
@@ -97,16 +98,16 @@ public class WebDriverPlus extends EventFiringWebDriver {
 		return webDriverPlus;  //super type is EventFiringWebDriver which wrapped WebDriver
 	}
 	
-	public boolean isQuit() {
-		return isQuit;
-	}
-
-	/** can avoid duplicate execute real quit() function */
-	public void quit() {
-		if( isQuit ) return ;
-		super.quit();
-		isQuit = true;
-    }
+//	public boolean isQuit() {
+//		return isQuit;
+//	}
+//
+//	/** can avoid duplicate execute real quit() function */
+//	public void quit() {
+//		if( isQuit ) return ;
+//		super.quit();
+//		isQuit = true;
+//    }
 	
 	
 	//if user do not pass a Method object, mean user abide our default rule: all 'test methods' under one 

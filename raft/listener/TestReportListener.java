@@ -20,6 +20,7 @@ import raft.engine.TestEngine;
 /**
  * User-define TestNG's report.
  * 
+ * @author james.deng
  *
  */
 public class TestReportListener implements IReporter {
@@ -218,6 +219,8 @@ public class TestReportListener implements IReporter {
 			totalCount = passCount+failCount+skipCount+errorCount;
 		}
 		errorCount = testMethodStatusListener.getMethodErrorSetting().size();
+		System.out.println("errorCount:" + errorCount);
+		System.out.println("failCount:" + failCount);
 		failCount = failCount - errorCount;
 		passprc = passCount*100/totalCount;
 		failprc = failCount*100/totalCount;
@@ -298,7 +301,7 @@ public class TestReportListener implements IReporter {
 				reporter.println("      <td class='"+classstr+"'>"+(new File(TestEngine.getReportRootdir()+getLogAddress(tr)).exists()?"<a href='"+getLogAddress(tr)+"'>"+tr.getMethod().getMethodName()+"</a>":tr.getMethod().getMethodName())+"</td>");
 				reporter.println("      <td class='"+classstr+"'>"+tr.getMethod().getRealClass().getName()+"</td>");
 				reporter.println("      <td class='"+classstr+"'>"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new java.util.Date(tr.getStartMillis()))+"</td>");
-				reporter.println("      <td align='right' class='"+classstr+"'>"+TestEngine.duration(tr.getEndMillis(), tr.getStartMillis())+"</td>");
+				reporter.println("      <td align='right' class='"+classstr+"'>"+ duration(tr.getEndMillis(), tr.getStartMillis())+"</td>");
 				reporter.println("      <td class='"+statusstr+"'>"+statusstr+"</td>");
 				reporter.println("      <td class='"+classstr+"'>"+(testMethodStatusListener.getScreenshotAddressMapping().get(tr)!=null?"<a href='"+getScreenshotAddress(tr)+"'>Screenshot</a>":"")+"</td>");
 				reporter.println("      <td class='"+classstr+"'>");
@@ -316,6 +319,23 @@ public class TestReportListener implements IReporter {
 		} //all <test> tags
 		reporter.println("</tr></table><div id='exception-display'></div></div>");		  
 		
+	}
+	
+	/**
+	 * Output the testMethod duration. 
+	 * @param end end millisecond
+	 * @param start start millisecond
+	 * @return duration statistics string
+	 */
+	public static String duration(long end ,long start)
+	{
+		long diff = end - start;
+		long minute = diff/60000;
+		long second = diff/1000 - minute*60;
+		String min = minute<10?"0"+minute:minute+"";
+		String sec = second<10?"0"+second:second+"";
+		String dur = min+":"+sec;
+		return dur;
 	}
 	
 	private void createException(String anchorName, String showName, Throwable exception, ITestNGMethod method) {
