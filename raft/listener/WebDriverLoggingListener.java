@@ -137,9 +137,7 @@ public class WebDriverLoggingListener extends AbstractWebDriverEventListener {
 					System.out.println("Take Screen shot on Exception!");
 					takeScreenshot(driver, logger, tr.getMethod() + "_onTestError",tr);
 				}
-				if (LoadPara.getGlobalParam("autoBrowserKiller").equalsIgnoreCase("true")){
-					driver.quit();
-				}
+				
 				setDriver(null);
 			}
     }

@@ -42,7 +42,8 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	private Set<ITestResult> methodErrorSetting = new HashSet<ITestResult>();
 	//to record screenshot picture's absolute path
 	private Map<ITestResult,String> screenshotAddressMapping = new HashMap<ITestResult,String>();
-	
+
+	private String browserType = LoadPara.getGlobalParam("browser");
 	
 	public static Map<ITestNGMethod, PrintWriter> getMethodLoggerMapping() {
 		return methodLoggerMapping;
@@ -74,10 +75,11 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	 * 
 	 */
 	synchronized public void onTestStart(ITestResult result) {
-		//Clean IE Browsers at first, due to Native Driver
+		//Clean IE Browsers at first, if using IE as testing browser
 		try {
 			System.out.println("Test start: " + result);
-			if (killBrowserIfExistByBrowserType("IE")){
+			if ((browserType).equalsIgnoreCase("IE") && isBrowerProcessExist("iexplore.exe")){
+				killBrowserProcess("iexplore.exe");
 				System.out.println("Exsiting IE Browser process Killed by Raft before testing!" );
 			}
 		} catch (Exception e1) {
@@ -130,7 +132,8 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	
 	public void onTestSkipped(ITestResult tr) {
 		
-		System.out.println(tr.getMethod().getMethodName()+"SKIPES");
+		java.io.PrintWriter logger = getMethodLoggerMapping().get(tr.getMethod());
+		logger.println(tr.getMethod().getMethodName()+"SKIPES");
 		
 	}
 	
@@ -172,16 +175,24 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 							((WebDriverLoggingListener)tr.getAttribute("wdlListener")).takeScreenshot(driver, logger, tr.getMethod() + "_onTestFail",tr);
 						}
 						
-						if (killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser"))){
-								System.out.println("Browser process(" + LoadPara.getGlobalParam("browser") + ") Killed by Raft on Test Finished!" );
+						if (killBrowserIfExistByBrowserType(browserType)){
+								System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Failed!" );
 								System.out.println("Test failed already due to TestNG exception/Assertion Fail!");
 						}
 						
 					}
+				
+					//webDriver exception called, will set driver to null
+					if (killBrowserIfExistByBrowserType(browserType)){
+						System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Error!" );
+						System.out.println("Test Error already due to WebDriver onexception called!");
+					}
+				
 				}catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-				}
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+		}
+				
 			return ;
 		}
 		
@@ -191,8 +202,8 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 				System.out.println("No WebDriverLoggingListener Found");
 				finishLogger(tr.getMethod());
 			
-				if (killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser"))){
-					System.out.println("Browser process(" + LoadPara.getGlobalParam("browser") + ") Killed by Raft on Test Finished!" );
+				if (killBrowserIfExistByBrowserType(browserType)){
+					System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Finished!" );
 					System.out.println("Test failed already due to TestNG exception/Assertion Fail!");
 					}
 			} catch (Exception e) {
@@ -214,11 +225,12 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	
 					try {
 						finishLogger(tr.getMethod());
-
-						if (killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser"))){
-								System.out.println("Browser process(" + LoadPara.getGlobalParam("browser") + ") Killed by Raft on Test Finished!" );
+						
+						if (killBrowserIfExistByBrowserType(browserType)){
+								System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Finished!" );
 								System.out.println("Test Method: <" + tr.getMethod().getMethodName() + ">Success!");
-							}
+						}
+						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -228,19 +240,7 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	
 	//Invoked after all the tests have run and all their Configuration methods have been called. 
 	public void onFinish(ITestContext testContext) {
-		
-		try {
-			//Add QuitHelper in GlobalPara to help debug scripts
-			if (LoadPara.getGlobalParam("QuitHelper")==null||LoadPara.getGlobalParam("QuitHelper").equalsIgnoreCase("True")){
-
-				if (killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser"))){
-					System.out.println("Browser process(" + LoadPara.getGlobalParam("browser") + ") Killed by Raft on Test Finished!" );
-					}
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//To-do something on further demand
 	}
 	
 	/**

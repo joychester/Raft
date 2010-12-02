@@ -13,7 +13,6 @@ import raft.listener.WebDriverLoggingListener;
 /**
  * A wrap instance of event firing WebDriver. Do some logging work for user.
  * 
- * @author james.deng
  *
  */
 public class WebDriverPlus extends EventFiringWebDriver {

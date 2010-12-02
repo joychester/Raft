@@ -5,9 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 /**
- * Some assertion utils.
- * 
- * @author james.deng
+ * Common assertion utils.
  *
  */
 public class Assertion {

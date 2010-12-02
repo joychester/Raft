@@ -1,35 +1,53 @@
 K 25
 svn:wc:ra_dav:version-url
-V 70
-/svn/OnVantage/!svn/ver/31169/qatest/WebDriverAutomation/src/raft/util
+V 84
+/svn/OnVantage/!svn/ver/31914/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util
+END
+MyWaiter.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/OnVantage/!svn/ver/32410/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/MyWaiter.java
 END
 LoadPara.java
 K 25
 svn:wc:ra_dav:version-url
-V 84
-/svn/OnVantage/!svn/ver/31167/qatest/WebDriverAutomation/src/raft/util/LoadPara.java
+V 98
+/svn/OnVantage/!svn/ver/31981/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/LoadPara.java
+END
+MyLogger.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/OnVantage/!svn/ver/31982/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/MyLogger.java
 END
 Assertion.java
 K 25
 svn:wc:ra_dav:version-url
-V 85
-/svn/OnVantage/!svn/ver/31169/qatest/WebDriverAutomation/src/raft/util/Assertion.java
+V 99
+/svn/OnVantage/!svn/ver/32325/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/Assertion.java
+END
+DBReader.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/OnVantage/!svn/ver/32444/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/DBReader.java
 END
 WebDriverBasic.java
 K 25
 svn:wc:ra_dav:version-url
-V 90
-/svn/OnVantage/!svn/ver/31167/qatest/WebDriverAutomation/src/raft/util/WebDriverBasic.java
+V 104
+/svn/OnVantage/!svn/ver/32325/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/WebDriverBasic.java
 END
 WebDriverPlus.java
 K 25
 svn:wc:ra_dav:version-url
-V 89
-/svn/OnVantage/!svn/ver/31167/qatest/WebDriverAutomation/src/raft/util/WebDriverPlus.java
+V 103
+/svn/OnVantage/!svn/ver/32325/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/WebDriverPlus.java
 END
 XmlUtil.java
 K 25
 svn:wc:ra_dav:version-url
-V 83
-/svn/OnVantage/!svn/ver/31167/qatest/WebDriverAutomation/src/raft/util/XmlUtil.java
+V 97
+/svn/OnVantage/!svn/ver/32325/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util/XmlUtil.java
 END

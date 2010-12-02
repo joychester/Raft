@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestContext;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
@@ -20,21 +21,38 @@ import raft.util.XmlUtil;
 
 /**
  * ITestListener, to listen the test method's status.
- * 
- * @author james.deng
  *
  */
 public class TestMethodStatusListener extends TestListenerAdapter {
+//////////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * 
+	 * A listener that gets invoked before and after a method is invoked by TestNG.
+	 * This listener will only be invoked for configuration and test methods.
+	 *
+	 */
+	
+	//one class, one map(xml para file data)
+	static Map<Class<?>, Map<String, String>> classMapMapping = new HashMap<Class<?>, Map<String, String>>();
+	//one method, one logger(PrintWriter)
+	static Map<ITestNGMethod, PrintWriter> methodLoggerMapping = new HashMap<ITestNGMethod, PrintWriter>();
+	//one method, one log file(File)
+	static Map<ITestNGMethod, File> methodFileMapping = new HashMap<ITestNGMethod, File>();
 	//to record which test methods are Error! 
-	private  Set<ITestResult> methodErrorSetting = new HashSet<ITestResult>();
+	private Set<ITestResult> methodErrorSetting = new HashSet<ITestResult>();
 	//to record screenshot picture's absolute path
 	private Map<ITestResult,String> screenshotAddressMapping = new HashMap<ITestResult,String>();
+
+	private String browserType = LoadPara.getGlobalParam("browser");
 	
-	
+	public static Map<ITestNGMethod, PrintWriter> getMethodLoggerMapping() {
+		return methodLoggerMapping;
+	}
 	
 	public Set<ITestResult> getMethodErrorSetting() {
 		return methodErrorSetting;
 	}
+	
 	public Map<ITestResult, String> getScreenshotAddressMapping() {
 		return screenshotAddressMapping;
 	}
@@ -57,7 +75,17 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	 * 
 	 */
 	synchronized public void onTestStart(ITestResult result) {
-		//System.out.println("parallel level: " + result.)
+		//Clean IE Browsers at first, if using IE as testing browser
+		try {
+			System.out.println("Test start: " + result);
+			if ((browserType).equalsIgnoreCase("IE") && isBrowerProcessExist("iexplore.exe")){
+				killBrowserProcess("iexplore.exe");
+				System.out.println("Exsiting IE Browser process Killed by Raft before testing!" );
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
 		WebDriverLoggingListener wdlListener = new WebDriverLoggingListener(this); //create an instance for every test method
 		result.setAttribute("wdlListener", wdlListener);
 		methodWDLListenerMapping.put(result.getMethod().getMethod(), wdlListener); //method <--> WDLListener mapping
@@ -65,16 +93,14 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		try {
 			createLogger(result.getMethod(), true);
 			wdlListener.setLogger(methodLoggerMapping.get(result.getMethod())); //notify logger
-			//wdlListener.setTestMethod(result.getMethod());  //notify testMethod
 			wdlListener.setTestResult(result);
-			startDaemonThread(result.getMethod());
 			
 			Class<?> clazz = result.getMethod().getRealClass();
 			//load one map for one test class
 			if( classMapMapping.get(clazz) == null ) {
 				String className = clazz.getName();
 				String localParaDir = TestEngine.getClassesRootdir(); //if no package name, put .class, .xml files under the same folder
-				if( className.indexOf(".") !=- 1 ) {
+				if( className.indexOf(".") != -1 ) {
 					String strArr[] = className.split("\\.");
 					localParaDir = "";
 					for(int i=0; i<strArr.length-2; i++)
@@ -96,70 +122,125 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	public void onTestSuccess(ITestResult tr) {
 		java.io.PrintWriter logger = getMethodLoggerMapping().get(tr.getMethod());
 		logger.println(WebDriverLoggingListener.logDateFormat.format(new java.util.Date()) + ": "+tr.getMethod().getRealClass().getName()+"."+tr.getMethod().getMethodName()+" Method Success!"); 
-		finishTestMethod(tr);
-	}
-	public void onTestSkipped(ITestResult tr) {
-		
-		System.out.println(tr.getMethod().getMethodName()+"SKIPES");
-		//finishTestMethod(tr);
-	}
-	public void onTestFailedButWithinSuccessPercentage(ITestResult tr) {
-		finishTestMethod(tr);
+		try {
+			finishTestMethod(tr);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	//take browser page shot if test failed.
+	public void onTestSkipped(ITestResult tr) {
+		
+		java.io.PrintWriter logger = getMethodLoggerMapping().get(tr.getMethod());
+		logger.println(tr.getMethod().getMethodName()+"SKIPES");
+		
+	}
+	
+	public void onTestFailedButWithinSuccessPercentage(ITestResult tr) {
+		
+		try {
+			finishTestMethod(tr);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	//take browser page shot if test failed or on exception.
 	public void onTestFailure(ITestResult tr) {
+
+		//System.out.println("Entry onTestFailure");
+
+		//print out error messages into log file
 		java.io.PrintWriter logger = getMethodLoggerMapping().get(tr.getMethod());
 		if( tr.getThrowable() != null ) {
-			logger.print(WebDriverLoggingListener.logDateFormat.format(new java.util.Date()) +(IsError(tr.getMethod())?":test method have errors:":": test method failed: ") ); 
+			logger.print(WebDriverLoggingListener.logDateFormat.format(new java.util.Date()) + " Test Failed or OnException: "); //(IsError(tr.getMethod())?":test method have errors:":": test method failed: ") ); 
 			tr.getThrowable().printStackTrace(logger);
 		}
-			
-		
-		WebDriver driver = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriver();
-		//WebDriver driver = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus().getWrappedDriver(); //can't use it to take scrennshot, I don't know why.
-		
-		if( "false".equals(LoadPara.getGlobalParam("onTestFailScreenshot")) ) {			
+
+		//Assertion fail
+		if(((WebDriverLoggingListener)tr.getAttribute("wdlListener"))!= null) {
+			System.out.println("Got WebDriverLoggingListener");
+				try {
+					finishLogger(tr.getMethod());
+					
+					if (((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriver()!= null){
+						System.out.println("Got Driver");
+						WebDriver driver = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriver();
+						
+						//take screen shot on test fail
+						if (!(LoadPara.getGlobalParam("TakingScreenshot")).equalsIgnoreCase("false")&&!tr.getThrowable().getMessage().contains("time-out")) {
+							System.out.println("Take Screen shot on Fail!");
+							((WebDriverLoggingListener)tr.getAttribute("wdlListener")).takeScreenshot(driver, logger, tr.getMethod() + "_onTestFail",tr);
+						}
+						
+						if (killBrowserIfExistByBrowserType(browserType)){
+								System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Failed!" );
+								System.out.println("Test failed already due to TestNG exception/Assertion Fail!");
+						}
+						
+					}
+				
+					//webDriver exception called, will set driver to null
+					if (killBrowserIfExistByBrowserType(browserType)){
+						System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Error!" );
+						System.out.println("Test Error already due to WebDriver onexception called!");
+					}
+				
+				}catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+		}
+				
 			return ;
 		}
 		
-		if( driver == null ) System.out.println(tr.getMethod() + " not used WebDriverPlus to get a WebDriver instance. So, there is no screenshot when fail.");
-		else 
-		{		
-				WebDriverLoggingListener.takeScreenshot(driver, logger, tr.getMethod() + (IsError(tr.getMethod())?"_TestError":"_TestFailed"),tr);	
-		}
+		// TestNG Exception or WebDriver onException caught!
+		else {
+			try {
+				System.out.println("No WebDriverLoggingListener Found");
+				finishLogger(tr.getMethod());
 			
+				if (killBrowserIfExistByBrowserType(browserType)){
+					System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Finished!" );
+					System.out.println("Test failed already due to TestNG exception/Assertion Fail!");
+					}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		
-		finishTestMethod(tr);
 	}
 
 	/**
-	 * finishLogger, finish daemon thread, ...
+	 * finishLogger, quit the driver ...
 	 * 
 	 * @param tr
+	 * @throws Exception 
 	 */
 	public void finishTestMethod(ITestResult tr) {
-		try {
-			//if browser was killed by autoBrowserKiller, test method will failed by other WebDriver operation(such 
-			//as findElementBy, so the Exception is not be autoBrowserKiller's thrown Exception), 
-			//then occur error, then quit invoking method and call afterInvocation method.
-			if( methodExceptionMapping.get(tr.getMethod()) != null ) { //if has timeout exception
-				tr.setStatus(ITestResult.FAILURE);
-				tr.setThrowable(methodExceptionMapping.get(tr.getMethod()));
-			} else { //normal quits
-				if( methodThreadMapping.get(tr.getMethod()) != null )
-					methodThreadMapping.get(tr.getMethod()).interrupt(); //if test method normal quits, interrupt the daemon thread. 
-			}
-				
-			finishLogger(tr.getMethod());
-			
-			raft.util.WebDriverPlus driverPlus = ((WebDriverLoggingListener)tr.getAttribute("wdlListener")).getDriverPlus(); 
-			if(driverPlus != null) driverPlus.quit();
-			
-			if( "true".equals(LoadPara.getGlobalParam("autoBrowserKiller")) && killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser")) )
-				System.out.println("Image: " + getImageName(LoadPara.getGlobalParam("browser")) + " was killed by auto browser killer.");
-			
-		} catch( Exception e ) { e.printStackTrace(); throw new RuntimeException(e); }
+	
+					try {
+						finishLogger(tr.getMethod());
+						
+						if (killBrowserIfExistByBrowserType(browserType)){
+								System.out.println("Browser process(" + browserType + ") Killed by Raft on Test Finished!" );
+								System.out.println("Test Method: <" + tr.getMethod().getMethodName() + ">Success!");
+						}
+						
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	}
+
+	
+	//Invoked after all the tests have run and all their Configuration methods have been called. 
+	public void onFinish(ITestContext testContext) {
+		//To-do something on further demand
 	}
 	
 	/**
@@ -177,22 +258,9 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		
 		return imageName;
 	}
-	public boolean IsError(ITestNGMethod method)
-	{
-		boolean bool = false;
-		for(ITestResult tr:this.getMethodErrorSetting())
-		{
-			
-			if(tr.getMethod().equals(method))
-			{
-				bool = true;
-				break;
-			}	
-		}
-		return bool;
-	}
+	
 	public boolean isBrowerProcessExist(String imageName) throws Exception {
-		return callSystemCmd("TASKLIST /FI \"IMAGENAME eq " + imageName + "\"").contains(imageName); 
+		return callSystemCmd("TASKLIST /FI \"IMAGENAME eq " + imageName + "\"").toLowerCase().contains(imageName); 
 	}
 
 	public void killBrowserProcess(String imageName) throws Exception {
@@ -202,7 +270,7 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	public boolean killBrowserIfExistByBrowserType(String browser) throws Exception {
 		boolean killed = false;
 		String imageName = getImageName(browser); 
-		if( imageName != null && isBrowerProcessExist(imageName) ) {
+		if( imageName != null && isBrowerProcessExist(imageName) && "true".equalsIgnoreCase(LoadPara.getGlobalParam("autoBrowserKiller"))) {
 			killBrowserProcess(imageName);
 			killed = true;
 		}
@@ -233,33 +301,6 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 		return strBuf.toString();
 	}
 	
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////	
-	/**
-	 * 
-	 * A listener that gets invoked before and after a method is invoked by TestNG.
-	 * This listener will only be invoked for configuration and test methods.
-	 *
-	 * @author james.deng
-	 *
-	 */
-	
-	//one class, one map(xml para file data)
-	static Map<Class<?>, Map<String, String>> classMapMapping = new HashMap<Class<?>, Map<String, String>>();
-	//one method, one daemon thread
-	static Map<ITestNGMethod, Thread> methodThreadMapping = new HashMap<ITestNGMethod, Thread>();
-	//if method killed by autoBrowserKiller, mapping one exception
-	static Map<ITestNGMethod, Throwable> methodExceptionMapping = new HashMap<ITestNGMethod, Throwable>();
-	//one method, one logger(PrintWriter)
-	static Map<ITestNGMethod, PrintWriter> methodLoggerMapping = new HashMap<ITestNGMethod, PrintWriter>();
-	//one method, one log file(File)
-	static Map<ITestNGMethod, File> methodFileMapping = new HashMap<ITestNGMethod, File>();
-	
-	public static Map<ITestNGMethod, PrintWriter> getMethodLoggerMapping() {
-		return methodLoggerMapping;
-	}
-
 	
 	/**
 	 * Create a logger for every method.
@@ -282,56 +323,14 @@ public class TestMethodStatusListener extends TestListenerAdapter {
 	 */
 	public void finishLogger(ITestNGMethod method) throws Exception {
 		//if test method status is skipped, won't call onTestStart(), so no logger created.
-		if( methodLoggerMapping.get(method) != null ) {
-			methodLoggerMapping.get(method).flush();
-			methodLoggerMapping.get(method).close();
-			if( methodFileMapping.get(method).length() == 0 )
-				methodFileMapping.get(method).delete();
-		}
-	}
-	
-	
-	/**
-	 * Start a daemon thread to monitor the browser process.
-	 * If the browser process still be present when a global method invoking timeout or 
-	 * method ok but user forgot to close/quit the WebDriver, kill the browser process.
-	 * 
-	 * @param method test method identifier
-	 * 
-	 */
-	public void startDaemonThread(final ITestNGMethod method) {
-		Thread thread = new Thread() {
-			public void run() {
-				try {
-					long timeout = 10*60*1000 ; //default 10 minutes
-					String browserKillerTimeout = LoadPara.getGlobalParam("browserKillerTimeout");
-					if( browserKillerTimeout.trim().length() != 0 )
-						timeout = Long.valueOf(browserKillerTimeout);
-					
-					Thread.sleep(timeout); //sleep until timeout or interrupted
-					
-					if( killBrowserIfExistByBrowserType(LoadPara.getGlobalParam("browser")) ) {
-						String str = "Image: " + getImageName(LoadPara.getGlobalParam("browser")) + 
-						" was killed by auto browser killer. Timeout: " + timeout;
-						System.out.println(str);
-						methodExceptionMapping.put(method, new Exception(str)); //mark the exception if be timeout
-					}
-					
-				} catch(InterruptedException  e) { 
-					//just return ;
-				} catch (Exception e) {
-					e.printStackTrace(); //this new thread's exception, no need to throw.
-				} finally {
-					methodThreadMapping.put(method, null); //thread over.
-				}
+			if( methodLoggerMapping.get(method) != null ) {
+				methodLoggerMapping.get(method).flush();
+				methodLoggerMapping.get(method).close();
+				if( methodFileMapping.get(method).length() == 0 )
+					methodFileMapping.get(method).delete();
 			}
-		};
-		methodThreadMapping.put(method, thread);
-		thread.start();
 	}
 
-
-	
 	/**
 	 * Get parameter value via a className and parameter name
 	 * @param className test class name

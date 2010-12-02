@@ -1,15 +1,15 @@
 10
 
 dir
-31203
-https://scm.onvantage.com/svn/OnVantage/qatest/WebDriverAutomation/src/raft/util
+31914
+https://scm.onvantage.com/svn/OnVantage/qatest/WebDriverAutomation/Raft_src_v1.1/src/raft/util
 https://scm.onvantage.com/svn/OnVantage
 
 
 
-2010-07-29T08:01:35.946774Z
-31169
-bill.guo
+2010-09-27T06:38:34.506341Z
+31914
+cheng.chi
 
 
 
@@ -26,16 +26,16 @@ bill.guo
 
 82f317f5-1516-0410-a3c4-6d2d63c07f2b
 
-LoadPara.java
+MyWaiter.java
 file
+32410
 
 
 
-
-2010-07-29T06:17:03.539052Z
-bc820c1cf4e4a374150e22a07192c634
-2010-07-29T06:14:30.477316Z
-31167
+2010-11-19T07:02:00.333765Z
+47787770b8eadf97ae6a43a38723fe38
+2010-11-19T08:36:38.390801Z
+32410
 cheng.chi
 
 
@@ -58,24 +58,87 @@ cheng.chi
 
 
 
-2425
+1169
+
+LoadPara.java
+file
+31981
+
+
+
+2010-08-23T08:37:48.266640Z
+09421279c2b6a6e25b4aee87e86c87d1
+2010-10-13T05:35:53.303450Z
+31981
+cheng.chi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3085
+
+MyLogger.java
+file
+31982
+
+
+
+2010-08-19T07:12:00.170778Z
+050aadf9b811d79286636ea1f0c635cd
+2010-10-13T05:36:49.940187Z
+31982
+cheng.chi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+483
 
 Assertion.java
 file
+32325
 
 
 
-
-2010-07-30T07:28:52.527419Z
-df62cefc0462250c200e468c392b446e
-2010-07-29T08:01:35.946774Z
-31169
-bill.guo
-
-
-
-
-
+2010-11-12T03:27:46.941124Z
+5e0bea52462f7ee85b69027ba60e96ba
+2010-11-12T03:29:05.127806Z
+32325
+cheng.chi
 
 
 
@@ -92,18 +155,57 @@ bill.guo
 
 
 
-1093
+
+
+
+
+
+1067
+
+DBReader.java
+file
+32444
+
+
+
+2010-11-23T08:46:59.503000Z
+a460053df3e0a2ce0c35e6367ba1c24f
+2010-11-23T09:04:57.108401Z
+32444
+cheng.chi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2691
 
 WebDriverBasic.java
 file
+32325
 
 
 
-
-2010-07-29T06:17:03.539052Z
-e0d4c2ad0a93e34682f8c789df34a869
-2010-07-29T06:14:30.477316Z
-31167
+2010-11-12T03:27:20.017009Z
+2f74d72e08249a4cf45aaf7bcb88af85
+2010-11-12T03:29:05.127806Z
+32325
 cheng.chi
 
 
@@ -126,18 +228,18 @@ cheng.chi
 
 
 
-2254
+2892
 
 WebDriverPlus.java
 file
+32325
 
 
 
-
-2010-07-29T06:17:03.554680Z
-168123696aa42a7dcc2aa7a5ae34b6a0
-2010-07-29T06:14:30.477316Z
-31167
+2010-11-12T03:27:13.860247Z
+81a6641a5bda9e99dfd4bad354b20b3c
+2010-11-12T03:29:05.127806Z
+32325
 cheng.chi
 
 
@@ -160,18 +262,18 @@ cheng.chi
 
 
 
-5012
+5300
 
 XmlUtil.java
 file
+32325
 
 
 
-
-2010-07-29T06:17:03.554680Z
-50c3682e43ee93570fb80c179a6d1b64
-2010-07-29T06:14:30.477316Z
-31167
+2010-11-12T03:27:32.502423Z
+dc9f2c144e5336021055f7e582d0d462
+2010-11-12T03:29:05.127806Z
+32325
 cheng.chi
 
 
@@ -194,5 +296,5 @@ cheng.chi
 
 
 
-2031
+2008
 

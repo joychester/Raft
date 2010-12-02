@@ -14,7 +14,6 @@ import org.xml.sax.SAXException;
 /**
  * Xml handling utils.
  * 
- * @author james.deng
  *
  */
 public class XmlUtil {
