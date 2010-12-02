@@ -4,6 +4,7 @@
 	<var name="TakingScreenshot">true</var>
 	<var name="arraySeparator">,</var>
 	<var name="globalRunCount">1</var>
+	<var name="perfflag">on</var>
 	
 	
 	<var name="username">demoadmin123</var>
