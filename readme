@@ -1,3 +1,11 @@
+All the lib you need to run with your test:
+JDK1.6
+WebDriver lib (all jars from selenium2.0)
+TestNG
+raft-1.0.jar
+sqljdbc4.jar
+mongo-2.3.jar
+
 git add src or abc.doc
 git commit -m 'put comments here'
 git push origin master
