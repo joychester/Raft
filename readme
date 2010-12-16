@@ -1,7 +1,7 @@
 All the lib you need to run with your test:
 JDK1.6
 WebDriver lib (all jars from selenium2.0)
-TestNG
+testng-5.14.jar
 raft-1.0.jar
 sqljdbc4.jar
 mongo-2.3.jar
