@@ -1,4 +1,4 @@
-package org;
+package raft.util;
 
 import java.net.UnknownHostException;
 import java.util.Date;
